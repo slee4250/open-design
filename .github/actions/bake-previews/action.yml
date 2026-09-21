@@ -42,6 +42,26 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Validate R2 upload configuration
+      if: ${{ inputs.upload == 'true' }}
+      shell: bash
+      env:
+        R2_ACCESS_KEY_ID: ${{ inputs.r2-access-key-id }}
+        R2_SECRET_ACCESS_KEY: ${{ inputs.r2-secret-access-key }}
+        R2_BUCKET: ${{ inputs.r2-bucket }}
+        R2_ENDPOINT: ${{ inputs.r2-endpoint }}
+      run: |
+        missing=()
+        for name in R2_ACCESS_KEY_ID R2_SECRET_ACCESS_KEY R2_BUCKET R2_ENDPOINT; do
+          if [ -z "${!name}" ]; then
+            missing+=("$name")
+          fi
+        done
+        if [ "${#missing[@]}" -gt 0 ]; then
+          echo "Missing required R2 upload configuration: ${missing[*]}" >&2
+          exit 1
+        fi
+
     - name: Install ffmpeg + CJK fonts + puppeteer-core
       shell: bash
       run: |
