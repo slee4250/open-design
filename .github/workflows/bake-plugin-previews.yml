@@ -36,6 +36,10 @@ concurrency:
 jobs:
   bake:
     name: Bake plugin previews
+    # This trusted uploader writes to the canonical repository's R2 bucket and
+    # opens a rolling manifest PR with its release-bot App. Forks do not inherit
+    # those credentials and validate previews through the secretless PR workflow.
+    if: ${{ github.repository == 'nexu-io/open-design' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:
